@@ -1,0 +1,18 @@
+#+title: Readme
+
+https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+
+(shadow/watch :app)
+(shadow/repl :app)
+
+audio
+https://dobrian.github.io/cmp/topics/sample-recording-and-playback-with-web-audio-api/1.loading-and-playing-sound-files.html
+
+audio synth + web api
+https://www.youtube.com/watch?v=laCjGMhASp8
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API
+
+
+canvas resize scaling 
+https://stackoverflow.com/questions/33515707/scaling-a-javascript-canvas-game-properly
+https://jsfiddle.net/blindman67/fdjqoj04/
