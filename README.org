@@ -1,10 +1,22 @@
 #+title: Readme
 
-https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+Starting point for the autumn lisp game jam 2024. I'm making a game in
+clojurescript.
+
+The dev instructions will be for emacs and cider since that's what I'm using. 
+Will update the instruction to build the project later.
+
+For development:
+Run cider-jack-in-cljs and in the past I've had to run the commands below in the
+repl to get it connected to the browser.
 
 (shadow/watch :app)
 (shadow/repl :app)
 
+
+* resources
+
+https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
 audio
 https://dobrian.github.io/cmp/topics/sample-recording-and-playback-with-web-audio-api/1.loading-and-playing-sound-files.html
 
