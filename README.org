@@ -3,6 +3,8 @@
 Starting point for the autumn lisp game jam 2024. I'm making a game in
 clojurescript.
 
+[[./screenshots/pre_jam_start.png]]
+
 The features implemented before the jam are: basic player movement, image
 loading and drawing, audio loading and playing, canvas resizing.
 
