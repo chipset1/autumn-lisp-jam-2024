@@ -89,7 +89,7 @@
   (.fill context))
 
 (defn draw-text [str x y]
-  (set! context.font "16px serif")
+  (set! context.font "32px serif")
   (.fillText context str x y))
 
 (defn background [color]

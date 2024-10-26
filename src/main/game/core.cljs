@@ -28,6 +28,7 @@
 
                            :dialog-take-index 0
                            :dialog-index 0
+                           :npc-dialog-character-time 50
 
                            :player (player/create 0 0)
                            :state-key :none ;; if talking or in transition etc
@@ -48,7 +49,7 @@
   )
 
 (defn debug-start-game []
-  (assets/loop-sound @game-state :background)
+  #_(assets/loop-sound @game-state :background)
   )
 
 
@@ -57,12 +58,13 @@
                       1000)]
     (assoc game-state
            :last-frame-time current-time
+           :millis (js/Date.now)
            :dt delta-time)))
 
 (defn update-game [game-state current-time]
   (-> game-state
       (update-dt current-time)
-      (npc/check-dialog)
+      (npc/update-npc)
       (player/update-player)
 
       )
@@ -124,11 +126,20 @@
              assoc-in
              [:input keyword-key] key-state))))
 
+;; run once per key press
+(defn key-pressed []
+  (swap! game-state (fn [state]
+                      (-> state
+                          (npc/key-pressed)
+                          ))))
+
 
 (defn listen-for-keys []
   ;; https://stackoverflow.com/questions/54514261/how-to-make-a-2d-character-run-and-jump-in-javascript
   (let [key-listen (fn [event]
-                     (swap-if-valid-key! event.key (= event.type "keydown")))]
+                     (swap-if-valid-key! event.key (= event.type "keydown"))
+                     (key-pressed)
+                     )]
     (events/listen js/window "keyup" key-listen)
     (events/listen js/window "keydown" key-listen)))
 
