@@ -24,10 +24,10 @@
   context.canvas.height)
 
 (defn setup-canvas! [game-state native-width native-height]
-  (let [native-width 1980
-        native-height 1020
+  (let [native-width 1980 ;; 1387
+        native-height 1020 ;; 714
         ]
-    (set-size! game-state (* native-width 0.5) (* native-height 0.5)
+    (set-size! game-state (* native-width 0.6) (* native-height 0.6)
                )
     
     #_(swap! game-state
@@ -87,11 +87,11 @@
   (.fill context))
 
 (defn draw-text [str x y]
-  (set! context.font "32px serif")
+  (set! context.font "32px ProggyFont")
   (.fillText context str x y))
 
 (defn draw-debug-text [str x y]
-  (set! context.font "16px serif")
+  (set! context.font "16px ProggyFont")
   (.fillText context str x y))
 
 (defn background [color]

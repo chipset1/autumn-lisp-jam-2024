@@ -5,6 +5,7 @@
             [game.player :as player]
             [game.entity :as entity]
             [game.npc :as npc]
+            [game.dialog :as dialog]
             [game.input :as input]
             [game.util :as util]
             [game.math :as math]
@@ -26,25 +27,53 @@
                            :screen-width screen-width
                            :screen-height screen-height
 
-                           :dialog-take-index 0
-                           :dialog-index 0
-                           :npc-dialog-character-time 50
+                           :dialog/take-index 0
+                           :dialog/index 0
+                           :dialog/character-time 50
 
                            :player (player/create 0 0)
-                           :state-key :none ;; if talking or in transition etc
                            :current-room :start
                            :game-state-key :start
-                           :rooms {:start {:npcs [(set-entity-dims (npc/create 500 100 :player-image))]}}
+                           :rooms {:start {:entities [(set-entity-dims (npc/create 500 900 :player-image))
+                                                      (entity/create {:pos [0 0]
+                                                                      :image-key :grey-house})
+
+                                                      (entity/create {:pos [400 0]
+                                                                      :image-key :grey-house})
+
+                                                      (entity/create {:pos [800 0]
+                                                                      :image-key :grey-house})
+
+
+                                                      (entity/create {:pos [1200 0]
+                                                                      :image-key :grey-house})
+                                                      ]
+                                           :exits [{:pos [2000 0]
+                                                    :goto :room2}
+                                                   {:pos [-2000 0]
+                                                    :goto :bathroom}]}
+                                   :room2 {:entities [
+
+                                                      (entity/create {:pos [0 0]
+                                                                      :image-key :player-image})
+
+                                                      (entity/create {:pos [0 100]
+                                                                      :image-key :player-image})
+
+                                                      (entity/create {:pos [0 200]
+                                                                      :image-key :player-image})
+                                                      ]
+                                           :exits [:pos [0 0]
+                                                   :goto :start]}}
                            }))
 
 (defn init []
   ;(c/set-size! js/window.innerWidth js/window.innerHeight)
   (c/setup-canvas! game-state screen-width screen-height)
-  (print js/window.innerWidth js/window.innerHeight)
-  (assets/load-image! game-state :player-image "/assets/npcBody.png" )
-  (assets/load-image! game-state :grey-house "/assets/greyHouse1.png" )
-  (assets/load-image! game-state :background "/assets/background.jpg" )
-  (assets/load-sound! game-state :background "/assets/audio/background.wav" )
+  (assets/load-image! game-state :player-image "npcBody.png" )
+  (assets/load-image! game-state :grey-house "greyHouse1.png" )
+  (assets/load-image! game-state :background "background.jpg" )
+  (assets/load-sound! game-state :background "audio/background.wav" )
 
   )
 
@@ -64,12 +93,11 @@
 (defn update-game [game-state current-time]
   (-> game-state
       (update-dt current-time)
-      (npc/update-npc)
+      (dialog/update-dialog)
       (player/update-player)
 
       )
   )
-
 
 (defn camera-update [state]
   (c/translate (+ (- (- (v/x (:pos (:player state))))
@@ -77,8 +105,13 @@
                   (math/half (c/get-screen-width)))
                (+ (- (- (v/y (:pos (:player state))))
                      (math/half (:height (:player state))))
-                  (math/half (c/get-screen-height))))
-  )
+                  (math/half (c/get-screen-height)))))
+
+(defn update-components [state entity]
+  (-> entity
+      (entity/if-run :dialog (fn [e]
+                               (dialog/draw-dialog-box state e)
+                               (dialog/draw-interact-pop-up state e)))))
 
 (defn draw [current-time]
 
@@ -94,17 +127,17 @@
     (camera-update state)
 
 
-    (c/draw-image (assets/get-image state :grey-house) 0.3)
-    (doseq [npc (:npcs (util/get-room state))]
-      (entity/draw-entity state npc)
-      (npc/draw-dialog-box state npc)
-      (npc/draw-interact-pop-up npc state))
+    #_(c/draw-image (assets/get-image state :grey-house) 0.3)
+    (doseq [e (:entities (util/get-room state))]
+      (entity/draw-entity state e)
+      (update-components state e)
+      )
 
     (player/draw-player state)
     (c/restore)
     )
   )
-
+(cond-> {:a 1} :a (assoc :b true))
 (defn run-debug []
   (when (input/check @game-state :o)
     (assets/sound-pause @game-state :background))
@@ -131,7 +164,7 @@
 (defn key-pressed []
   (swap! game-state (fn [state]
                       (-> state
-                          (npc/key-pressed)
+                          (dialog/key-pressed)
                           ))))
 
 
@@ -155,3 +188,11 @@
                           (fn []
                             (c/set-size! game-state js/window.innerWidth js/window.innerHeight)))
            (listen-mouse)))
+
+
+(comment
+  (cljs.pprint/pprint (dissoc @game-state :assets))
+  (c/get-screen-width) ; 1188
+  (c/get-screen-height) ;612
+
+  )

@@ -1,31 +1,9 @@
 (ns game.entity
-(:require [game.vector :as v]
+  (:require [game.vector :as v]
             [game.canvas2D :as c]
             [game.assets :as assets]
             [game.input :as input]
-   )
-  )
-
-(defn get-entity-image [game-state entity]
-  (assets/get-image game-state (:image-key entity)))
-
-(defn get-dimensions [game-state-map entity]
-  
-  (let [image (get-entity-image game-state-map entity)]
-
-    (when image
-      {:width (* (.-width image)
-                (:image-scale entity))
-      :height (* (.-height image)
-                 (:image-scale entity))
-      })))
-
-(defn create [merge-map]
-  (merge merge-map
-         {:id (random-uuid)}))
-
-#_(defn aabb-bb?? [game-state-map player bbpos width height]
-  (aabb? ))
+            [game.util :as util]))
 
 (defn aabb?
   ([e1 e2]
@@ -37,6 +15,29 @@
         (> (+ x1 width1) x2)
         (< y1 (+ y2 height2))
         (> (+ y1 height1) y2))))
+
+(defn get-entity-image [game-state entity]
+  (assets/get-image game-state (:image-key entity)))
+
+(defn get-all-in-room [state]
+  (:entities (util/get-room state)))
+
+(defn get-entity [id state]
+  (first (filter #(= (:id %) id) (get-all-in-room state))))
+
+(defn get-player-overlap [state]
+  (first (filter #(aabb? (:player state) %)
+                 (get-all-in-room state))))
+
+(defn create [merge-map]
+  (merge {:id (random-uuid)
+          :image-scale 0.3}
+         merge-map))
+
+(defn if-run [entity comp-key func]
+  (if (comp-key entity)
+    (func entity)
+    entity))
 
 (defn draw-entity [game-state entity & callback]
   (let [pos (:pos entity)
