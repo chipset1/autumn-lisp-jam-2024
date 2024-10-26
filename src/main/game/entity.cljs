@@ -29,6 +29,10 @@
   (first (filter #(aabb? (:player state) %)
                  (get-all-in-room state))))
 
+(defn get-player-overlap-ex [state entities]
+  (first (filter #(aabb? (:player state) %)
+                 entities)))
+
 (defn create [merge-map]
   (merge {:id (random-uuid)
           :image-scale 0.3}
@@ -49,3 +53,10 @@
       (when callback (callback))
       (c/draw-image image img-scale)
       (c/restore)))
+
+(defn draw-debug-entity [entity]
+  (let [pos (:pos entity)]
+      (c/draw-rect (v/x pos)
+                   (v/y pos)
+                   (:width entity)
+                   (:height entity))))

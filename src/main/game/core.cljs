@@ -6,6 +6,7 @@
             [game.entity :as entity]
             [game.npc :as npc]
             [game.dialog :as dialog]
+            [game.room :as room]
             [game.input :as input]
             [game.util :as util]
             [game.math :as math]
@@ -48,13 +49,11 @@
                                                       (entity/create {:pos [1200 0]
                                                                       :image-key :grey-house})
                                                       ]
-                                           :exits [{:pos [2000 0]
-                                                    :goto :room2}
-                                                   {:pos [-2000 0]
-                                                    :goto :bathroom}]}
-                                   :room2 {:entities [
-
-                                                      (entity/create {:pos [0 0]
+                                           :exits [(room/create-exit {:pos [64 344]
+                                                                      :goto :room2})
+                                                   (room/create-exit {:pos [-2000 0]
+                                                                      :goto :bathroom})]}
+                                   :room2 {:entities [(entity/create {:pos [0 0]
                                                                       :image-key :player-image})
 
                                                       (entity/create {:pos [0 100]
@@ -63,8 +62,8 @@
                                                       (entity/create {:pos [0 200]
                                                                       :image-key :player-image})
                                                       ]
-                                           :exits [:pos [0 0]
-                                                   :goto :start]}}
+                                           :exits [(room/create-exit {:pos [0 300]
+                                                                      :goto :start})]}}
                            }))
 
 (defn init []
@@ -95,6 +94,7 @@
       (update-dt current-time)
       (dialog/update-dialog)
       (player/update-player)
+      (room/update-room)
 
       )
   )
@@ -128,10 +128,13 @@
 
 
     #_(c/draw-image (assets/get-image state :grey-house) 0.3)
-    (doseq [e (:entities (util/get-room state))]
+    (doseq [e (:entities (room/get-room state))]
       (entity/draw-entity state e)
       (update-components state e)
       )
+    (doseq [exit (:exits (room/get-room state))]
+      (c/fill "green")
+      (entity/draw-debug-entity exit))
 
     (player/draw-player state)
     (c/restore)
