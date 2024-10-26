@@ -26,13 +26,11 @@
 (defn setup-canvas! [game-state native-width native-height]
   (let [native-width 1980
         native-height 1020
-        device-width 900#_js/window.innerWidth
-        device-height 600 #_js/window.innerHeight
-        scale-fill-native (js/Math.max (/ device-width native-width)
-                                       (/ device-height native-height))]
-    (set-size! game-state device-width device-height)
+        ]
+    (set-size! game-state (* native-width 0.5) (* native-height 0.5)
+               )
     
-    (swap! game-state
+    #_(swap! game-state
            assoc
            :canvas/scale-fill-native scale-fill-native
            :canvas/set-transform
@@ -90,6 +88,10 @@
 
 (defn draw-text [str x y]
   (set! context.font "32px serif")
+  (.fillText context str x y))
+
+(defn draw-debug-text [str x y]
+  (set! context.font "16px serif")
   (.fillText context str x y))
 
 (defn background [color]

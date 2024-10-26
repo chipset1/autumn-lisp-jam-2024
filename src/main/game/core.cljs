@@ -89,16 +89,17 @@
 
     (c/background "grey")
     (c/fill "blue")
-    (c/draw-text (str "fps:" (int (/ 1 (:dt state)))) 20 20)
-    (c/draw-text (str "player pos:" (:pos (:player state))) 20 30)
+    (c/draw-debug-text (str "fps:" (int (/ 1 (:dt state)))) 20 20)
+    (c/draw-debug-text (str "player pos:" (:pos (:player state))) 20 30)
     (camera-update state)
 
 
     (c/draw-image (assets/get-image state :grey-house) 0.3)
-    (doall (map (fn [npc]
-                  (entity/draw-entity state npc)
-                  (npc/draw-dialog-box state npc ))
-                (:npcs (util/get-room state))))
+    (doseq [npc (:npcs (util/get-room state))]
+      (entity/draw-entity state npc)
+      (npc/draw-dialog-box state npc)
+      (npc/draw-interact-pop-up npc state))
+
     (player/draw-player state)
     (c/restore)
     )

@@ -5,10 +5,14 @@
             [game.canvas2D :as c]
             [game.entity :as entity]))
 
+
+;; TODO: refactor so dialog is independent from npc
+
 (defn create [x y image-key]
   (entity/create {:pos [x y]
                   :image-key image-key
                   :image-scale 0.2
+                  :interact-pop-up-str "talk"
                   :dialog ["hello" "this is a test"]}))
 
 (defn get-npc [id state]
@@ -29,9 +33,12 @@
      state))
   )
 
+(defn get-player-overlap-npc [state]
+  (first (filter #(entity/aabb? (:player state) %)
+                 (:npcs (util/get-room state)))))
+
 (defn check-dialog [state]
-  (let [n (first (filter #(entity/aabb? (:player state) %)
-                         (:npcs (util/get-room state))))]
+  (let [n (get-player-overlap-npc state)]
    (if (and (input/talk-key? state)
             (not (= (:game-state-key state) :npc-talking))
             (not (nil? n)))
@@ -48,9 +55,9 @@
            (> (:dialog-take-index state)
               (count (nth (:dialog (get-npc (:talking-npc-id state) state))
                           (:dialog-index state)))))
-    (do (print (:dialog-index state))(-> state
-         (update :dialog-index inc)
-         (assoc :dialog-take-index 0)))
+    (-> state
+        (update :dialog-index inc)
+        (assoc :dialog-take-index 0))
   state))
 
 
@@ -74,7 +81,16 @@
       (check-dialog)
       (update-next-dialog)
       (update-end-dialog)))
-    
+
+(defn draw-interact-pop-up [npc state]
+  (let [n (get-player-overlap-npc state)]
+    (when (and (not (util/game-state-npc-talking? state))
+               (not (nil? n)))
+      (c/fill "black")
+      (c/draw-text (str ">" (:interact-pop-up-str npc))
+                   (v/x (:pos npc))
+                   (- (v/y (:pos npc)) 20))
+     )))
 
 (defn draw-dialog-box [state npc]
   (when (and (= (:game-state-key state) :npc-talking)
@@ -84,7 +100,7 @@
           x (- (v/x (:pos (:player state)))
                (/ box-width 2))
           y (+ (v/y (:pos (:player state)))
-               140)]
+               (* 0.43 (c/get-screen-height)))]
       (c/save)
       (c/fill "rgba(0,0,0,0.8)")
       (c/draw-rect x y box-width box-height)
