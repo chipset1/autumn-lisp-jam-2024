@@ -1,9 +1,13 @@
 (ns game.input)
 
-(def valid-keys #{:w :s :a :d :space :o :p})
+(def valid-keys #{:w :s :a :d :j :o :p})
 
 (defn check [game-state k]
   (k (:input game-state)))
+
+(defn talk-key? [state]
+  (check state :j))
+
 
 (defn move-up [game-state]
   (:w (:input game-state)))

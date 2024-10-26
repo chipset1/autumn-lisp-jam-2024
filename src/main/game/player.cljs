@@ -7,7 +7,10 @@
 
 (defn create [w h]
   {:pos [(/ w 2) (/ h 2)]
-   :img-scale 0.2
+   :image-scale 0.2
+   :image-key :player-image
+   :width 113
+   :height 258
    :speed (* 5 60)})
 
 (defn- move-player
@@ -36,14 +39,13 @@
   
   (when-let [player-img (assets/get-image game-state :player-image)]
     (let [pos (:pos (:player game-state))
-          img-scale (:img-scale (:player game-state))
+          img-scale (:image-scale (:player game-state))
           player-width (* (.-width player-img) img-scale)
           player-height (* (.-height player-img) img-scale)]
       
       (c/save)
-      #_(c/translate (v/x pos) (v/y pos))
-      (print (/ (:canvas/device-width game-state) 2))
-      (c/translate (+ (v/x pos)
+      (c/translate (v/x pos) (v/y pos))
+      #_(c/translate (+ (v/x pos)
                       (- (/ (:canvas/device-width game-state) 2))
                       (/ player-width 2))
                    (+ (v/y pos)

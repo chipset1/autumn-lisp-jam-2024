@@ -15,7 +15,13 @@
            :canvas/device-width width
            :canvas/device-height height
          )
+
   )
+(defn get-screen-width []
+  context.canvas.width)
+
+(defn get-screen-height []
+  context.canvas.height)
 
 (defn setup-canvas! [game-state native-width native-height]
   (let [native-width 1980
@@ -47,13 +53,17 @@
   ([img]
    (.drawImage context img 0 0))
   ([img percent]
-   (when (not (nil? img))
+   (when (nil? percent) (js/console.error "image percent is nil"))
+   (if (not (nil? img))
      (draw-image img
-                 (* percent img.width)
-                 (* percent img.height))))
+                (* percent img.width)
+                (* percent img.height))
+     (js/console.log "image is nil")))
   ([img width height]
-   (when (not (nil? img))
-     (.drawImage context img 0 0 width height))))
+   (if (not (nil? img))
+     (.drawImage context img 0 0 width height)
+     (js/console.log "image is nil"))
+   ))
 
 (defn fill [str]
   (set! (.-fillStyle context) str))

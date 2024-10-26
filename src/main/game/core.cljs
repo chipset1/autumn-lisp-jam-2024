@@ -3,16 +3,38 @@
             [game.assets :as assets]
             [game.vector :as v]
             [game.player :as player]
+            [game.entity :as entity]
+            [game.npc :as npc]
             [game.input :as input]
+            [game.util :as util]
+            [game.math :as math]
             [goog.events :as events]))
+
+
+(def image-dims {:player-image {:width 113
+                                  :height 258}})
+
+(defn set-entity-dims [entity]
+  (merge entity
+         (get image-dims (:image-key entity))))
 
 (def screen-width 1980)
 (def screen-height 1020)
 (def debug true)
 (defonce game-state (atom {:last-frame-time 0
+                           :debug? debug
                            :screen-width screen-width
                            :screen-height screen-height
-                           :player (player/create 0 0)}))
+
+                           :dialog-take-index 0
+                           :dialog-index 0
+
+                           :player (player/create 0 0)
+                           :state-key :none ;; if talking or in transition etc
+                           :current-room :start
+                           :game-state-key :start
+                           :rooms {:start {:npcs [(set-entity-dims (npc/create 500 100 :player-image))]}}
+                           }))
 
 (defn init []
   ;(c/set-size! js/window.innerWidth js/window.innerHeight)
@@ -21,7 +43,9 @@
   (assets/load-image! game-state :player-image "/assets/npcBody.png" )
   (assets/load-image! game-state :grey-house "/assets/greyHouse1.png" )
   (assets/load-image! game-state :background "/assets/background.jpg" )
-  (assets/load-sound! game-state :background "/assets/audio/background.wav" ))
+  (assets/load-sound! game-state :background "/assets/audio/background.wav" )
+
+  )
 
 (defn debug-start-game []
   (assets/loop-sound @game-state :background)
@@ -38,13 +62,20 @@
 (defn update-game [game-state current-time]
   (-> game-state
       (update-dt current-time)
-      (player/update-player))
+      (npc/check-dialog)
+      (player/update-player)
+
+      )
   )
 
 
-(defn camera-update [game-state]
-  (c/translate (- (- (v/x (:pos (:player game-state))) 800))
-               (- (v/y (:pos (:player game-state)))))
+(defn camera-update [state]
+  (c/translate (+ (- (- (v/x (:pos (:player state))))
+                     (math/half (:width (:player state))))
+                  (math/half (c/get-screen-width)))
+               (+ (- (- (v/y (:pos (:player state))))
+                     (math/half (:height (:player state))))
+                  (math/half (c/get-screen-height))))
   )
 
 (defn draw [current-time]
@@ -54,13 +85,18 @@
 
     (c/save)
 
-
-      (:canvas/set-tranform game-state)
     (c/background "grey")
     (c/fill "blue")
     (c/draw-text (str "fps:" (int (/ 1 (:dt state)))) 20 20)
+    (c/draw-text (str "player pos:" (:pos (:player state))) 20 30)
     (camera-update state)
+
+
     (c/draw-image (assets/get-image state :grey-house) 0.3)
+    (doall (map (fn [npc]
+                  (entity/draw-entity state npc)
+                  (npc/draw-dialog-box state npc ))
+                (:npcs (util/get-room state))))
     (player/draw-player state)
     (c/restore)
     )

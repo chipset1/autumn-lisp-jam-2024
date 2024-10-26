@@ -2,6 +2,8 @@
 
 Starting point for the autumn lisp game jam 2024. I'm making a game in
 clojurescript.
+https://github.com/chipset1/autumn-lisp-jam-2024/tree/main
+https://itch.io/jam/autumn-lisp-game-jam-2024
 
 [[./screenshots/pre_jam_start.png]]
 
