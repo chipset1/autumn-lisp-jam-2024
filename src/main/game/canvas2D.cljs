@@ -45,7 +45,7 @@
   (let [img (js/Image.)
         _ (set! img.src path)
         _ (set! img.onload callback)
-        _ (set! img.onerror (fn [e] (print "error" e)))]))
+        _ (set! img.onerror (fn [e] (js/console.error "load image error" path e.message)))]))
 
 (defn draw-image
   ([img]

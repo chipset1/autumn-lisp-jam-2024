@@ -67,15 +67,28 @@
                                                     :goto :start})]}}
          }))
 
-(defn init []
-  ;(c/set-size! js/window.innerWidth js/window.innerHeight)
-  (c/setup-canvas! game-state screen-width screen-height)
-  (assets/load-image! game-state :player-image "npcBody.png" )
-  (assets/load-image! game-state :grey-house "greyHouse1.png" )
-  (assets/load-image! game-state :background "background.jpg" )
-  (assets/load-sound! game-state :background "audio/background.wav" )
+(def assets-map {:images {:player-image "npcBody.png"
+                          :grey-house "greyHouse1.png"
+                          :background "background.jpg"}
+                 :cutscenes {"start" 5}
+                 :audio {:background "background.wav"}})
 
+(defn load-assets []
+  (doall (map (fn [[k path]]
+                (assets/load-image! game-state k path))
+              (:images assets-map))) 
+  (doall (map (fn [[k path]]
+                 (assets/load-sound! game-state k path))
+              (:audio assets-map)))
+  (doall (map (fn [[k path]]
+                (assets/load-cutscene! game-state k path))
+              (:cutscenes assets-map)))
   )
+
+
+(defn init []
+  (c/setup-canvas! game-state screen-width screen-height)
+  (load-assets))
 
 (defn debug-start-game []
   #_(assets/loop-sound @game-state :background)
@@ -144,6 +157,7 @@
 (cond-> {:a 1} :a (assoc :b true))
 (defn run-debug []
   (when (input/check @game-state :o)
+
     (assets/sound-pause @game-state :background))
   (when (input/check @game-state :p)
     (assets/loop-sound @game-state :background))
