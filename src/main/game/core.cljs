@@ -1,5 +1,6 @@
 (ns game.core
   (:require [game.canvas2D :as c]
+            [cljs.core.async :as async]
             [game.assets :as assets]
             [game.vector :as v]
             [game.player :as player]
@@ -12,7 +13,6 @@
             [game.math :as math]
             [goog.events :as events]))
 
-
 (def image-dims {:player-image {:width 113
                                   :height 258}})
 
@@ -23,48 +23,49 @@
 (def screen-width 1980)
 (def screen-height 1020)
 (def debug true)
-(defonce game-state (atom {:last-frame-time 0
-                           :debug? debug
-                           :screen-width screen-width
-                           :screen-height screen-height
+(defonce game-state
+  (atom {:last-frame-time 0
+         :debug? debug
+         :screen-width screen-width
+         :screen-height screen-height
 
-                           :dialog/take-index 0
-                           :dialog/index 0
-                           :dialog/character-time 50
+         :dialog/take-index 0
+         :dialog/index 0
+         :dialog/character-time 50
 
-                           :player (player/create 0 0)
-                           :current-room :start
-                           :game-state-key :start
-                           :rooms {:start {:entities [(set-entity-dims (npc/create 500 900 :player-image))
-                                                      (entity/create {:pos [0 0]
-                                                                      :image-key :grey-house})
+         :player (player/create 0 0)
+         :current-room :start
+         :game-state-key :start
+         :rooms {:start {:entities [(set-entity-dims (npc/create 500 900 :player-image))
+                                    (entity/create {:pos [0 0]
+                                                    :image-key :grey-house})
 
-                                                      (entity/create {:pos [400 0]
-                                                                      :image-key :grey-house})
+                                    (entity/create {:pos [400 0]
+                                                    :image-key :grey-house})
 
-                                                      (entity/create {:pos [800 0]
-                                                                      :image-key :grey-house})
+                                    (entity/create {:pos [800 0]
+                                                    :image-key :grey-house})
 
 
-                                                      (entity/create {:pos [1200 0]
-                                                                      :image-key :grey-house})
-                                                      ]
-                                           :exits [(room/create-exit {:pos [64 344]
-                                                                      :goto :room2})
-                                                   (room/create-exit {:pos [-2000 0]
-                                                                      :goto :bathroom})]}
-                                   :room2 {:entities [(entity/create {:pos [0 0]
-                                                                      :image-key :player-image})
+                                    (entity/create {:pos [1200 0]
+                                                    :image-key :grey-house})
+                                    ]
+                         :exits [(room/create-exit {:pos [64 344]
+                                                    :goto :room2})
+                                 (room/create-exit {:pos [-2000 0]
+                                                    :goto :bathroom})]}
+                 :room2 {:entities [(entity/create {:pos [0 0]
+                                                    :image-key :player-image})
 
-                                                      (entity/create {:pos [0 100]
-                                                                      :image-key :player-image})
+                                    (entity/create {:pos [0 100]
+                                                    :image-key :player-image})
 
-                                                      (entity/create {:pos [0 200]
-                                                                      :image-key :player-image})
-                                                      ]
-                                           :exits [(room/create-exit {:pos [0 300]
-                                                                      :goto :start})]}}
-                           }))
+                                    (entity/create {:pos [0 200]
+                                                    :image-key :player-image})
+                                    ]
+                         :exits [(room/create-exit {:pos [0 300]
+                                                    :goto :start})]}}
+         }))
 
 (defn init []
   ;(c/set-size! js/window.innerWidth js/window.innerHeight)
@@ -86,7 +87,7 @@
                       1000)]
     (assoc game-state
            :last-frame-time current-time
-           :millis (js/Date.now)
+           :millis current-time
            :dt delta-time)))
 
 (defn update-game [game-state current-time]
