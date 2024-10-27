@@ -8,6 +8,8 @@
             [game.npc :as npc]
             [game.dialog :as dialog]
             [game.room :as room]
+            [game.cutscene :as cutscene]
+            [game.states :as states]
             [game.input :as input]
             [game.util :as util]
             [game.math :as math]
@@ -32,6 +34,8 @@
          :dialog/take-index 0
          :dialog/index 0
          :dialog/character-time 50
+
+         :cutscene/default-frame-time 3000
 
          :player (player/create 0 0)
          :current-room :start
@@ -109,6 +113,7 @@
       (dialog/update-dialog)
       (player/update-player)
       (room/update-room)
+      (cutscene/update-cutscene)
 
       )
   )
@@ -127,11 +132,7 @@
                                (dialog/draw-dialog-box state e)
                                (dialog/draw-interact-pop-up state e)))))
 
-(defn draw [current-time]
-
-  (let [state (swap! game-state #(update-game % current-time))]
-
-
+(defn draw-room [state]
     (c/save)
 
     (c/background "grey")
@@ -140,8 +141,6 @@
     (c/draw-debug-text (str "player pos:" (:pos (:player state))) 20 30)
     (camera-update state)
 
-
-    #_(c/draw-image (assets/get-image state :grey-house) 0.3)
     (doseq [e (:entities (room/get-room state))]
       (entity/draw-entity state e)
       (update-components state e)
@@ -151,14 +150,23 @@
       (entity/draw-debug-entity exit))
 
     (player/draw-player state)
+
     (c/restore)
+  )
+
+(defn draw [current-time]
+  (let [state (swap! game-state #(update-game % current-time))]
+    (if (states/playing-cutscene? state)
+      (cutscene/draw-cutscene state)
+      (draw-room state))
     )
   )
-(cond-> {:a 1} :a (assoc :b true))
+
 (defn run-debug []
   (when (input/check @game-state :o)
+    (swap! game-state #(cutscene/start-playing-cutscene % :start))
 
-    (assets/sound-pause @game-state :background))
+    #_(assets/sound-pause @game-state :background))
   (when (input/check @game-state :p)
     (assets/loop-sound @game-state :background))
   )

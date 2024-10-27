@@ -26,11 +26,17 @@
        (range 0 count)))
 
 (defn load-cutscene! [game-state-atom dir max]
-  (swap! game-state-atom assoc-in [:assets :cutscenes (keyword dir)]
-         (mapv load-image-ex (load-cutscene-strings dir max))))
+  (swap! game-state-atom
+         assoc-in
+         [:assets :cutscenes (keyword dir)]
+         {:images (mapv load-image-ex (load-cutscene-strings dir max))
+          :max-frame max}))
 
 (defn get-image [game-state-map key]
   (get-in game-state-map [:assets :images key]))
+
+(defn get-cutscene-images [game-state-map key]
+  (get-in game-state-map [:assets :cutscenes key :images]))
 
 (defn load-sound! [game-state-atom k sound-path]
   (swap! game-state-atom assoc-in [:assets :audio k]

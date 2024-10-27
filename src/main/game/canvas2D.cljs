@@ -63,6 +63,9 @@
      (js/console.log "image is nil"))
    ))
 
+(defn draw-image-full [img]
+  (draw-image img (get-screen-width) (get-screen-height)))
+
 (defn fill [str]
   (set! (.-fillStyle context) str))
 

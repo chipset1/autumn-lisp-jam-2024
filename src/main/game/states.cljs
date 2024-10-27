@@ -1,6 +1,6 @@
 (ns game.states)
 
-(def valid-game-states #{:dialog-running :in-room})
+(def valid-game-states #{:dialog-running :in-room :playing-cutscene})
 
 
 (defn get-state [state-key]
@@ -17,3 +17,6 @@
 
 (defn dialog-running? [state]
   (eq state (get-state :dialog-running)))
+
+(defn playing-cutscene? [state]
+  (eq state (get-state :playing-cutscene)))
