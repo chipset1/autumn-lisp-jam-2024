@@ -14,7 +14,7 @@
     (if (not (nil? e))
       (-> state
           (assoc :current-room (:goto e))
-          (assoc-in [:player :pos] (:next-player-pos e)))
+          (assoc-in [:player :pos] (:player-start-pos e)))
       state)))
 
 

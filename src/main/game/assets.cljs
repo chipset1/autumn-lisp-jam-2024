@@ -16,7 +16,7 @@
 (defn load-image-ex [path]
 (let [img (js/Image.)
         _ (set! img.src path)
-      _ (set! img.onerror (fn [e] (print "error" path e)))]
+      _ (set! img.onerror (fn [e] (js/console.error "error" path e.message)))]
   img))
 
 
@@ -25,12 +25,12 @@
          (str "./assets/cutscenes/" dir "/" image-name ".png"))
        (range 0 count)))
 
-(defn load-cutscene! [game-state-atom dir max]
+(defn load-cutscene! [game-state-atom k data-map]
   (swap! game-state-atom
          assoc-in
-         [:assets :cutscenes (keyword dir)]
-         {:images (mapv load-image-ex (load-cutscene-strings dir max))
-          :max-frame max}))
+         [:assets :cutscenes k]
+         {:images (mapv load-image-ex (load-cutscene-strings (:dir data-map) (:max-frames data-map)))
+          :max-frames (:max-frames data-map)}))
 
 (defn get-image [game-state-map key]
   (get-in game-state-map [:assets :images key]))

@@ -39,43 +39,36 @@
 
          :player (player/create 0 0)
          :current-room :start
-         :game-state-key :start
+         :game-state-key :in-room
          :rooms {:start {:entities [(set-entity-dims (npc/create 500 900 :player-image))
-                                    (entity/create {:pos [0 0]
-                                                    :image-key :grey-house})
-
-                                    (entity/create {:pos [400 0]
-                                                    :image-key :grey-house})
-
-                                    (entity/create {:pos [800 0]
-                                                    :image-key :grey-house})
-
-
-                                    (entity/create {:pos [1200 0]
-                                                    :image-key :grey-house})
+                                    (entity/create-background 0 0 :grey-house)
+                                    (entity/create-background 400 0 :grey-house)
+                                    (entity/create-background 800 0 :grey-house)
+                                    (entity/create-background 1200 0 :grey-house)
                                     ]
                          :exits [(room/create-exit {:pos [64 344]
+                                                    :player-start-pos [-100 0]
                                                     :goto :room2})
                                  (room/create-exit {:pos [-2000 0]
                                                     :goto :bathroom})]}
-                 :room2 {:entities [(entity/create {:pos [0 0]
-                                                    :image-key :player-image})
-
-                                    (entity/create {:pos [0 100]
-                                                    :image-key :player-image})
-
-                                    (entity/create {:pos [0 200]
-                                                    :image-key :player-image})
+                 :room2 {:entities [(entity/create-background 0 0 :player-image)
+                                    (entity/create-background 0 100 :player-image)
+                                    (entity/create-background 0 200 :player-image)
                                     ]
                          :exits [(room/create-exit {:pos [0 300]
+                                                    :player-start-pos [64 500]
                                                     :goto :start})]}}
-         }))
+         :cutscenes {:start {:end-callback {:player-pos [0 0]
+                                            :room :start}}}}))
 
 (def assets-map {:images {:player-image "npcBody.png"
                           :grey-house "greyHouse1.png"
                           :background "background.jpg"}
-                 :cutscenes {"start" 5}
+                 :cutscenes {:start {:dir "start"
+                                     :max-frames 5}}
                  :audio {:background "background.wav"}})
+(map (fn [[k path]]
+       [k path]) (:cutscenes assets-map))
 
 (defn load-assets []
   (doall (map (fn [[k path]]
@@ -84,8 +77,8 @@
   (doall (map (fn [[k path]]
                  (assets/load-sound! game-state k path))
               (:audio assets-map)))
-  (doall (map (fn [[k path]]
-                (assets/load-cutscene! game-state k path))
+  (doall (map (fn [[k data-map]]
+                (assets/load-cutscene! game-state k data-map))
               (:cutscenes assets-map)))
   )
 
@@ -126,13 +119,26 @@
                      (math/half (:height (:player state))))
                   (math/half (c/get-screen-height)))))
 
+(defn camera-screen-pos [state]
+  (c/translate (+ (- (v/x (:pos (:player state)))
+                     (math/half (c/get-screen-width)))
+                  (math/half (:width (:player state))))
+               (+ (- (v/y (:pos (:player state)))
+                     (math/half (c/get-screen-height)))
+                  (math/half (:height (:player state))))
+               ))
+
 (defn update-components [state entity]
   (-> entity
       (entity/if-run :dialog (fn [e]
                                (dialog/draw-dialog-box state e)
                                (dialog/draw-interact-pop-up state e)))))
 
-(defn draw-room [state]
+(defn draw [current-time]
+
+  (let [state (swap! game-state #(update-game % current-time))]
+
+
     (c/save)
 
     (c/background "grey")
@@ -151,14 +157,10 @@
 
     (player/draw-player state)
 
+    (when (states/playing-cutscene? state)
+      (camera-screen-pos state)
+      (cutscene/draw-cutscene state))
     (c/restore)
-  )
-
-(defn draw [current-time]
-  (let [state (swap! game-state #(update-game % current-time))]
-    (if (states/playing-cutscene? state)
-      (cutscene/draw-cutscene state)
-      (draw-room state))
     )
   )
 

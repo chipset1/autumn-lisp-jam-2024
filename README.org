@@ -35,3 +35,6 @@ https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_A
 canvas resize scaling 
 https://stackoverflow.com/questions/33515707/scaling-a-javascript-canvas-game-properly
 https://jsfiddle.net/blindman67/fdjqoj04/
+
+example game cljs:
+https://github.com/trevorcode/zenith-game

@@ -38,6 +38,10 @@
           :image-scale 0.3}
          merge-map))
 
+(defn create-background [x y image-key]
+  (create {:pos [x y]
+           :image-key image-key}))
+
 (defn if-run [entity comp-key func]
   (if (comp-key entity)
     (func entity)

@@ -16,8 +16,8 @@
 
 (defn stop-playing [state]
   (if (and (states/playing-cutscene? state)
-           (>= (:cutscene/frame state)
-               (dec (:max-frame (get-current-cutscene state)))))
+           (> (:cutscene/frame state)
+              (dec (:max-frames (get-current-cutscene state)))))
     (states/set-state state :in-room)
     state))
 
@@ -33,11 +33,15 @@
   )
 
 (defn draw-cutscene [state]
-  (c/draw-image-full (nth (assets/get-cutscene-images state (:cutscene/current state))
-                     (:cutscene/frame state))))
+  (let [c (get-current-cutscene state)]
+    (c/draw-image-full(nth (:images c)
+                           (js/Math.min (dec (:max-frames c))
+                                        (:cutscene/frame state))) )))
+
+
 
 (defn update-cutscene [state]
   (-> state
-      (stop-playing)
       (update-cutscene-frame)
+      (stop-playing)
       ))

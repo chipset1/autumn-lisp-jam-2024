@@ -2,6 +2,7 @@
   (:require [game.vector :as v]
             [game.canvas2D :as c]
             [game.assets :as assets]
+            [game.states :as states]
             [game.input :as input]
    ))
 
@@ -33,7 +34,9 @@
     ))
 
 (defn update-player [game-state]
-  (update game-state :player #(movement game-state %)))
+  (if (states/in-room? game-state)
+    (update game-state :player #(movement game-state %))
+    game-state))
 
 (defn draw-player [game-state]
   
@@ -45,13 +48,6 @@
       
       (c/save)
       (c/translate (v/x pos) (v/y pos))
-      #_(c/translate (+ (v/x pos)
-                      (- (/ (:canvas/device-width game-state) 2))
-                      (/ player-width 2))
-                   (+ (v/y pos)
-                      (/ (:canvas/device-height game-state) 2)
-                      (- (/ player-height 2)))
-                   )
       (c/draw-image player-img img-scale)
       (c/restore)))
   )
