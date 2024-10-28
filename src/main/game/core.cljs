@@ -36,15 +36,25 @@
          :dialog/character-time 50
 
          :cutscene/default-frame-time 3000
+         :cutscene/current :start  
 
          :player (player/create 0 0)
          :current-room :start
-         :game-state-key :in-room
-         :rooms {:start {:entities [(set-entity-dims (npc/create 500 900 :player-image))
+         :game-state-key :playing-cutscene
+         :rooms {:start {:entities [(set-entity-dims (npc/create 500 900
+                                                                 :player-image
+                                                                 {:dialog {:text ["hello" "this is a test"]}}))
                                     (entity/create-background 0 0 :grey-house)
                                     (entity/create-background 400 0 :grey-house)
                                     (entity/create-background 800 0 :grey-house)
                                     (entity/create-background 1200 0 :grey-house)
+                                    (npc/create 400 400
+                                                :cat
+                                                {:width 100
+                                                 :height 100
+                                                 :dialog {:text ["feeds the cat"]
+                                                          :end-callback-fn dialog/run-once
+                                                          :interact-pop-up-str "feed cat"}})
                                     ]
                          :exits [(room/create-exit {:pos [64 344]
                                                     :player-start-pos [-100 0]
@@ -63,12 +73,11 @@
 
 (def assets-map {:images {:player-image "npcBody.png"
                           :grey-house "greyHouse1.png"
-                          :background "background.jpg"}
+                          :background "background.jpg"
+                          :cat "cat.png"}
                  :cutscenes {:start {:dir "start"
                                      :max-frames 5}}
                  :audio {:background "background.wav"}})
-(map (fn [[k path]]
-       [k path]) (:cutscenes assets-map))
 
 (defn load-assets []
   (doall (map (fn [[k path]]
@@ -85,7 +94,10 @@
 
 (defn init []
   (c/setup-canvas! game-state screen-width screen-height)
-  (load-assets))
+  (load-assets)
+  ;; debug-start game
+  (swap! game-state #(assoc % :game-state-key :in-room))
+  )
 
 (defn debug-start-game []
   #_(assets/loop-sound @game-state :background)
@@ -134,13 +146,8 @@
                                (dialog/draw-dialog-box state e)
                                (dialog/draw-interact-pop-up state e)))))
 
-(defn draw [current-time]
-
-  (let [state (swap! game-state #(update-game % current-time))]
-
-
+(defn draw-room [state]
     (c/save)
-
     (c/background "grey")
     (c/fill "blue")
     (c/draw-debug-text (str "fps:" (int (/ 1 (:dt state)))) 20 20)
@@ -157,10 +164,14 @@
 
     (player/draw-player state)
 
-    (when (states/playing-cutscene? state)
-      (camera-screen-pos state)
-      (cutscene/draw-cutscene state))
     (c/restore)
+  )
+
+(defn draw [current-time]
+  (let [state (swap! game-state #(update-game % current-time))]
+    (if (states/playing-cutscene? state)
+      (cutscene/draw-cutscene state)
+      (draw-room state))
     )
   )
 

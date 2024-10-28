@@ -13,6 +13,7 @@
 (defn check-dialog [state]
   (let [n (entity/get-player-overlap state)]
    (if (and (input/talk-key? state)
+            (not (:run-already? (:dialog n)))
             (not (states/dialog-running? state))
             (not (nil? n)))
      (-> state
@@ -46,18 +47,28 @@
   state))
 
 (defn update-end-dialog [state]
-  (let [e (entity/get-entity (:dialog/entity-id state) state)]
+  (let [e (entity/get-entity (:dialog/entity-id state) state)
+        end-callback-fn (or (:end-callback-fn (:dialog e)) identity)]
     (if (and (states/dialog-running? state)
              (not (nil? e))
              (>= (:dialog/index state)
-                 (count (:dialog e))))
-      (-> (assoc state
-              :dialog/entity-id nil
+                 (count (:text (:dialog e)))))
+      (-> state
+          (end-callback-fn)
+          (assoc :dialog/entity-id nil
               :dialog/index 0
               :dialog/take-index 0)
           (states/set-state :in-room))
-     state))
-  )
+     state)))
+
+(defn run-once [state]
+   (update-in state
+              [:rooms (:current-room state) :entities]
+              #(map (fn [entity]
+                      (if (= (:id entity) (:dialog/entity-id state))
+                        (assoc-in entity [:dialog :run-already?] true)
+                        entity))
+                    %)))
 
 (defn update-dialog [state]
   (-> state
@@ -74,6 +85,7 @@
 
 (defn draw-interact-pop-up [state entity]
   (when (and (not (states/dialog-running? state))
+             (not (:run-already? (:dialog entity)))
              (entity/aabb? entity (:player state)))
     (c/fill "black")
     (c/draw-text (str ">" (:interact-pop-up-str (:dialog entity)))
@@ -95,7 +107,8 @@
       (c/draw-rect x y box-width box-height)
       (c/fill "white")
       (c/draw-text (apply str (take (:dialog/take-index state)
-                                    (nth (:text (:dialog entity)) (:dialog/index state))))
+                                    (nth (:text (:dialog entity))
+                                         (:dialog/index state))))
                (+ x 20) (+ y 40))
       (c/restore))))
 
