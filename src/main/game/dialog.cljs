@@ -123,7 +123,8 @@
     (c/fill "black")
     (c/draw-text (str ">" (:interact-pop-up-str (get-dialog entity)))
                  (v/x (:pos entity))
-                 (- (v/y (:pos entity)) 20))
+                 (- (js/Math.min (v/y (:pos (:player state)))
+                                 (v/y (:pos entity))) 20))
     ))
 
 (defn draw-dialog-box [state entity]
