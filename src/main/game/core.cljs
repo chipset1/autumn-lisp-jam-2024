@@ -48,12 +48,15 @@
                                     (entity/create-background 400 0 :grey-house)
                                     (entity/create-background 800 0 :grey-house)
                                     (entity/create-background 1200 0 :grey-house)
-                                    (npc/create 400 400
+                                    (npc/create-cat 400 400
                                                 :cat
                                                 {:width 100
                                                  :height 100
+                                                 :plain-id :cat
+                                                 :state :not-eating
+                                                 :draw-fn npc/draw-cat
                                                  :dialog {:text ["feeds the cat"]
-                                                          :end-callback-fn dialog/run-once
+                                                          :end-callback-fn (comp npc/cat-set-state-eat dialog/run-once)
                                                           :interact-pop-up-str "feed cat"}})
                                     ]
                          :exits [(room/create-exit {:pos [64 344]
@@ -63,8 +66,7 @@
                                                     :goto :bathroom})]}
                  :room2 {:entities [(entity/create-background 0 0 :player-image)
                                     (entity/create-background 0 100 :player-image)
-                                    (entity/create-background 0 200 :player-image)
-                                    ]
+                                    (entity/create-background 0 200 :player-image)]
                          :exits [(room/create-exit {:pos [0 300]
                                                     :player-start-pos [64 500]
                                                     :goto :start})]}}
@@ -74,7 +76,8 @@
 (def assets-map {:images {:player-image "npcBody.png"
                           :grey-house "greyHouse1.png"
                           :background "background.jpg"
-                          :cat "cat.png"}
+                          :cat "cat.png"
+                          :cat-eatting "npcBody.png"}
                  :cutscenes {:start {:dir "start"
                                      :max-frames 5}}
                  :audio {:background "background.wav"}})
@@ -140,7 +143,7 @@
                   (math/half (:height (:player state))))
                ))
 
-(defn update-components [state entity]
+(defn draw-components [state entity]
   (-> entity
       (entity/if-run :dialog (fn [e]
                                (dialog/draw-dialog-box state e)
@@ -155,8 +158,10 @@
     (camera-update state)
 
     (doseq [e (:entities (room/get-room state))]
-      (entity/draw-entity state e)
-      (update-components state e)
+      (if-let [draw-fn (:draw-fn e)]
+        (draw-fn state e)
+        (entity/draw-entity state e))
+      (draw-components state e)
       )
     (doseq [exit (:exits (room/get-room state))]
       (c/fill "green")

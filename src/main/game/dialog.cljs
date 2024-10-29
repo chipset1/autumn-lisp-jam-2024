@@ -62,13 +62,11 @@
      state)))
 
 (defn run-once [state]
-   (update-in state
-              [:rooms (:current-room state) :entities]
-              #(map (fn [entity]
-                      (if (= (:id entity) (:dialog/entity-id state))
-                        (assoc-in entity [:dialog :run-already?] true)
-                        entity))
-                    %)))
+  (entity/update-in-room state
+                         (fn [entity]
+                           (if (= (:id entity) (:dialog/entity-id state))
+                             (assoc-in entity [:dialog :run-already?] true)
+                             entity))))
 
 (defn update-dialog [state]
   (-> state

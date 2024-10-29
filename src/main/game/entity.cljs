@@ -47,6 +47,11 @@
     (func entity)
     entity))
 
+(defn update-in-room [state f]
+  (update-in state
+              [:rooms (:current-room state) :entities]
+              #(map f %)))
+
 (defn draw-entity [game-state entity & callback]
   (let [pos (:pos entity)
         img-scale (:image-scale entity)
