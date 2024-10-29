@@ -16,8 +16,21 @@
          (:current-dialog-index entity))
     (:dialog entity)))
 
+;; bounding box for aabb
+(defn get-dialog-bb [entity]
+  (let [pos (:pos entity)
+        offset 100]
+    {:pos [(- (v/x pos) offset)
+           (- (v/y pos) offset)]
+     :width (+ (:width entity) offset)
+     :height (+ (:height entity) offset)}))
+
+(defn get-player-overlap [state]
+  (first (filter #(entity/aabb? (:player state) (get-dialog-bb %))
+                 (:entities (util/get-room state)))))
+
 (defn check-dialog [state]
-  (let [n (entity/get-player-overlap state)]
+  (let [n (get-player-overlap state)]
    (if (and (input/talk-key? state)
             (not (:run-already? (get-dialog n)))
             (not (states/dialog-running? state))
@@ -106,7 +119,7 @@
 (defn draw-interact-pop-up [state entity]
   (when (and (not (states/dialog-running? state))
              (not (:run-already? (get-dialog entity)))
-             (entity/aabb? entity (:player state)))
+             (entity/aabb? (get-dialog-bb entity) (:player state)))
     (c/fill "black")
     (c/draw-text (str ">" (:interact-pop-up-str (get-dialog entity)))
                  (v/x (:pos entity))

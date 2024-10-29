@@ -45,8 +45,8 @@
                                                                  :player-image
                                                                  {:dialog {:text ["hello" "this is a test"]
                                                                            :interact-pop-up-str "talk"}}))
-                                    (entity/create-background 0 0 :grey-house)
-                                    (npc/create-cat 400 400
+                                    #_(entity/create-background 0 0 :grey-house)
+                                    (npc/create-cat 400 100
                                                 :cat
                                                 {:width 100
                                                  :height 100
@@ -60,7 +60,7 @@
                                                           {:text ["*pets cat*"]
                                                            :interact-pop-up-str "pet cat"}]
                                                  })
-                                    (npc/create-cat 400 500
+                                    (npc/create-cat 600 400
                                                 :cat
                                                 {:width 100
                                                  :height 100
@@ -135,7 +135,7 @@
   (load-assets)
 
   ;; debug-start game
-  #_(swap! game-state #(assoc % :game-state-key :in-room))
+  (swap! game-state #(assoc % :game-state-key :in-room))
   )
 
 (defn debug-start-game []
