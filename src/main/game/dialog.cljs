@@ -87,7 +87,7 @@
                            (if (= (:id entity) (:dialog/entity-id state))
                              (if (not (vector? (:dialog entity)))
                                (assoc-in entity [:dialog :run-already?] true)
-                               entity)
+                               (assoc-in entity [:dialog (:current-dialog-index entity) :run-already?] true))
                              entity))))
 
 (defn update-dialog [state]

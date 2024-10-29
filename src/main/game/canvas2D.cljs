@@ -5,12 +5,15 @@
 (defonce context
   (let [canvas (js/document.querySelector "canvas")
         context (.getContext canvas "2d")]
-    context))
+    context)
+  )
+  
 
 
 (defn set-size! [game-state width height]
   (set! context.canvas.width width)
   (set! context.canvas.height height)
+
   (swap! game-state assoc
            :canvas/device-width width
            :canvas/device-height height
@@ -91,6 +94,10 @@
   (.beginPath context)
   (.rect context x y w h)
   (.fill context))
+
+(defn draw-text-ex [s size x y]
+  (set! context.font (str size "px ProggyFont"))
+  (.fillText context s x y))
 
 (defn draw-text [str x y]
   (set! context.font "32px ProggyFont")

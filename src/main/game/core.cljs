@@ -40,15 +40,12 @@
 
          :player (player/create 0 0)
          :current-room :start
-         :game-state-key :playing-cutscene
+         :game-state-key :start-menu
          :rooms {:start {:entities [(set-entity-dims (npc/create 500 900
                                                                  :player-image
                                                                  {:dialog {:text ["hello" "this is a test"]
                                                                            :interact-pop-up-str "talk"}}))
                                     (entity/create-background 0 0 :grey-house)
-                                    (entity/create-background 400 0 :grey-house)
-                                    (entity/create-background 800 0 :grey-house)
-                                    (entity/create-background 1200 0 :grey-house)
                                     (npc/create-cat 400 400
                                                 :cat
                                                 {:width 100
@@ -62,6 +59,17 @@
                                                            :interact-pop-up-str "feed cat"}
                                                           {:text ["*pets cat*"]
                                                            :interact-pop-up-str "pet cat"}]
+                                                 })
+                                    (npc/create-cat 400 500
+                                                :cat
+                                                {:width 100
+                                                 :height 100
+                                                 :current-dialog-index 0
+                                                 :dialog [{:text ["making coffee"]
+                                                           :interact-pop-up-str "make coffee"}
+                                                          {:text ["*drink coffee*"]
+                                                           :end-callback-fn dialog/run-once
+                                                           :interact-pop-up-str "drink coffee"}]
                                                  })
                                     ]
                          :exits [(room/create-exit {:pos [64 344]
@@ -99,12 +107,35 @@
               (:cutscenes assets-map)))
   )
 
+(defn draw-start-screen [state]
+  (c/save)
+  (c/background "black")
+  (c/fill "white")
+  (c/draw-text-ex "Lisp game about"
+                  "60"
+                  100
+                  (- (math/half (c/get-screen-height))
+                     200))
+  (c/draw-text-ex "Lisp game jam"
+                  "60"
+                  100
+                  (- (math/half (c/get-screen-height))
+                     100))
+
+  (c/draw-text-ex "Press j to start"
+                  "60"
+                  100
+                  (+ 100 (math/half (c/get-screen-height))))
+  (c/restore))
+                  
+
 
 (defn init []
   (c/setup-canvas! game-state screen-width screen-height)
   (load-assets)
+
   ;; debug-start game
-  (swap! game-state #(assoc % :game-state-key :in-room))
+  #_(swap! game-state #(assoc % :game-state-key :in-room))
   )
 
 (defn debug-start-game []
@@ -179,9 +210,12 @@
 
 (defn draw [current-time]
   (let [state (swap! game-state #(update-game % current-time))]
-    (if (states/playing-cutscene? state)
-      (cutscene/draw-cutscene state)
-      (draw-room state))
+    (if (states/at-start-menu? state)
+      (draw-start-screen state)
+      (if (states/playing-cutscene? state)
+        (cutscene/draw-cutscene state)
+        (draw-room state)))
+    
     )
   )
 
@@ -209,11 +243,18 @@
              assoc-in
              [:input keyword-key] key-state))))
 
+(defn start-menu-key-pressed [state]
+  (if (and (states/at-start-menu? state)
+           (input/talk-key? state))
+    (states/set-state state :playing-cutscene)
+    state))
+
 ;; run once per key press
 (defn key-pressed []
   (swap! game-state (fn [state]
                       (-> state
                           (dialog/key-pressed)
+                          (start-menu-key-pressed)
                           ))))
 
 
