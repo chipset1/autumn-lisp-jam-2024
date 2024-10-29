@@ -55,9 +55,13 @@
                                                  :plain-id :cat
                                                  :state :not-eating
                                                  :draw-fn npc/draw-cat
-                                                 :dialog {:text ["feeds the cat"]
-                                                          :end-callback-fn (comp npc/cat-set-state-eat dialog/run-once)
-                                                          :interact-pop-up-str "feed cat"}})
+                                                 :current-dialog-index 0
+                                                 :dialog [{:text ["feeds the cat"]
+                                                           :end-callback-fn npc/cat-set-state-eat
+                                                           :interact-pop-up-str "feed cat"}
+                                                          {:text ["*pets cat*"]
+                                                           :interact-pop-up-str "pet cat"}]
+                                                 })
                                     ]
                          :exits [(room/create-exit {:pos [64 344]
                                                     :player-start-pos [-100 0]

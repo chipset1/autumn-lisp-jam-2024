@@ -10,10 +10,16 @@
 ;; {:text ["hello" "something"]
 ;;  :interact-pop-up-str "talk"}
 
+(defn get-dialog [entity]
+  (if (vector? (:dialog entity))
+    (nth (:dialog entity)
+         (:current-dialog-index entity))
+    (:dialog entity)))
+
 (defn check-dialog [state]
   (let [n (entity/get-player-overlap state)]
    (if (and (input/talk-key? state)
-            (not (:run-already? (:dialog n)))
+            (not (:run-already? (get-dialog n)))
             (not (states/dialog-running? state))
             (not (nil? n)))
      (-> state
@@ -39,33 +45,49 @@
   (if (and (states/dialog-running? state)
            (input/talk-key? state)
            (> (:dialog/take-index state)
-              (count (nth (:text (:dialog (entity/get-entity (:dialog/entity-id state) state)))
+              (count (nth (:text (get-dialog (entity/get-entity (:dialog/entity-id state) state)))
                           (:dialog/index state)))))
     (-> state
         (update :dialog/index inc)
         (assoc :dialog/take-index 0))
   state))
 
+(defn inc-vector-dialog [state]
+  (entity/update-in-room state
+                         (fn [entity]
+                           (if (= (:id entity) (:dialog/entity-id state))
+                             (if (vector? (:dialog entity))
+                               (update entity :current-dialog-index (fn [i]
+                                                                      (js/Math.min (dec (count (:dialog entity)))
+                                                                                   (inc i))))
+                               entity)
+                             entity))))
+
 (defn update-end-dialog [state]
   (let [e (entity/get-entity (:dialog/entity-id state) state)
-        end-callback-fn (or (:end-callback-fn (:dialog e)) identity)]
+        dialog (get-dialog e)
+        end-callback-fn (or (:end-callback-fn dialog) identity)]
     (if (and (states/dialog-running? state)
              (not (nil? e))
              (>= (:dialog/index state)
-                 (count (:text (:dialog e)))))
+                 (count (:text dialog))))
       (-> state
           (end-callback-fn)
+          (inc-vector-dialog)
           (assoc :dialog/entity-id nil
               :dialog/index 0
               :dialog/take-index 0)
-          (states/set-state :in-room))
+          (states/set-state :in-room)
+          )
      state)))
 
 (defn run-once [state]
   (entity/update-in-room state
                          (fn [entity]
                            (if (= (:id entity) (:dialog/entity-id state))
-                             (assoc-in entity [:dialog :run-already?] true)
+                             (if (not (vector? (:dialog entity)))
+                               (assoc-in entity [:dialog :run-already?] true)
+                               entity)
                              entity))))
 
 (defn update-dialog [state]
@@ -83,10 +105,10 @@
 
 (defn draw-interact-pop-up [state entity]
   (when (and (not (states/dialog-running? state))
-             (not (:run-already? (:dialog entity)))
+             (not (:run-already? (get-dialog entity)))
              (entity/aabb? entity (:player state)))
     (c/fill "black")
-    (c/draw-text (str ">" (:interact-pop-up-str (:dialog entity)))
+    (c/draw-text (str ">" (:interact-pop-up-str (get-dialog entity)))
                  (v/x (:pos entity))
                  (- (v/y (:pos entity)) 20))
     ))
@@ -105,7 +127,7 @@
       (c/draw-rect x y box-width box-height)
       (c/fill "white")
       (c/draw-text (apply str (take (:dialog/take-index state)
-                                    (nth (:text (:dialog entity))
+                                    (nth (:text (get-dialog entity))
                                          (:dialog/index state))))
                (+ x 20) (+ y 40))
       (c/restore))))
