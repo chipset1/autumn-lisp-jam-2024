@@ -66,6 +66,9 @@
 (defn draw-image-full [img]
   (draw-image img (get-screen-width) (get-screen-height)))
 
+(defn draw-image-max [img]
+  (draw-image img img.width img.height))
+
 (defn fill [str]
   (set! (.-fillStyle context) str))
 

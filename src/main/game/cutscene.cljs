@@ -2,6 +2,7 @@
   (:require [game.states :as states]
             [game.canvas2D :as c]
             [game.assets :as assets]
+            [game.math :as math]
             ))
 
 (defn get-current-cutscene [state]
@@ -33,10 +34,24 @@
   )
 
 (defn draw-cutscene [state]
-  (let [c (get-current-cutscene state)]
-    (c/draw-image-full(nth (:images c)
+  (let [c (get-current-cutscene state)
+        current-image (nth (:images c)
                            (js/Math.min (dec (:max-frames c))
-                                        (:cutscene/frame state))) )))
+                                        (:cutscene/frame state)))
+        ratio (js/Math.min (/ (c/get-screen-width)
+                                    current-image.width)
+                                 (/ (c/get-screen-height)
+                                    current-image.height ))
+        x-offset (math/half (- (c/get-screen-width)
+                               (* current-image.width ratio)))]
+
+    (c/save)
+    (c/background "black")
+    (c/translate x-offset 0)
+    (c/draw-image current-image
+                      (* current-image.width ratio)
+                      (* current-image.height ratio))
+    (c/restore)))
 
 
 

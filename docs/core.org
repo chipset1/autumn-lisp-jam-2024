@@ -13,3 +13,32 @@ story
 - you go grocery shopping
 - you explore a town
 - you go to work and live life
+- 
+** Tuesday 29th
+game about making a game about for the lisp game jam
+
+outline:
+lisp game jam is tomorrow
+yay
+next morning
+ring
+alarm off
+goto kitcken scene:
+feed cat
+pet cat
+get coffee
+start work on game
+lisp coding cutscene
+cutscene yay i have basic player movement
+Ill get other coffee.
+
+Oh no I'm out of milk
+I'll go get some
+go to store listening to music
+get milk
+
+a few days later
+yay I finished the game
+game restarts showing the same game
+
+ 

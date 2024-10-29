@@ -22,7 +22,7 @@
 
 (defn load-cutscene-strings [dir count]
   (map (fn [image-name]
-         (str "./assets/cutscenes/" dir "/" image-name ".png"))
+         (str "./assets/cutscenes/" dir "/" image-name ".jpg"))
        (range 0 count)))
 
 (defn load-cutscene! [game-state-atom k data-map]

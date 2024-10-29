@@ -43,7 +43,8 @@
          :game-state-key :playing-cutscene
          :rooms {:start {:entities [(set-entity-dims (npc/create 500 900
                                                                  :player-image
-                                                                 {:dialog {:text ["hello" "this is a test"]}}))
+                                                                 {:dialog {:text ["hello" "this is a test"]
+                                                                           :interact-pop-up-str "talk"}}))
                                     (entity/create-background 0 0 :grey-house)
                                     (entity/create-background 400 0 :grey-house)
                                     (entity/create-background 800 0 :grey-house)
@@ -83,7 +84,7 @@
                           :cat "cat.png"
                           :cat-eatting "npcBody.png"}
                  :cutscenes {:start {:dir "start"
-                                     :max-frames 5}}
+                                     :max-frames 1}}
                  :audio {:background "background.wav"}})
 
 (defn load-assets []
