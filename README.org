@@ -2,8 +2,10 @@
 
 https://itch.io/jam/autumn-lisp-game-jam-2024
 
-I didn't end up completing the game in time for the jam. I'm reading into better
-ways to make a game in a functional way. I would not do things this way again.
+This is how far I got in making the game. It has basic dialog and a cut scene
+system. I didn't end up completing the game in time for the jam. I'm reading
+into better ways to make a game in a functional way. I would not do things this
+way again.
 
 [[./screenshots/pre_jam_start.png]]
 
