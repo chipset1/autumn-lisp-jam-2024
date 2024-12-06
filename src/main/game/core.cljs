@@ -24,6 +24,10 @@
 
 (def screen-width 1980)
 (def screen-height 1020)
+
+(def player-start-x 479)
+(def player-start-y 284)
+
 (def debug true)
 (defonce game-state
   (atom {:last-frame-time 0
@@ -38,7 +42,7 @@
          :cutscene/default-frame-time 3000
          :cutscene/current :start  
 
-         :player (player/create 0 0)
+         :player (player/create player-start-x player-start-y)
          :current-room :start
          :game-state-key :start-menu
          :rooms {:start {:entities [(set-entity-dims (npc/create 500 900
@@ -46,25 +50,23 @@
                                                                  {:dialog {:text ["hello" "this is a test"]
                                                                            :interact-pop-up-str "talk"}}))
                                     #_(entity/create-background 0 0 :grey-house)
-                                    (npc/create-cat 400 100
-                                                :cat
+                                    (npc/create-cat 900 300
+                                                :player-image
                                                 {:width 100
                                                  :height 100
                                                  :plain-id :cat
                                                  :state :not-eating
                                                  :draw-fn npc/draw-cat
-                                                 :current-dialog-index 0
                                                  :dialog [{:text ["feeds the cat"]
                                                            :end-callback-fn npc/cat-set-state-eat
                                                            :interact-pop-up-str "feed cat"}
                                                           {:text ["*pets cat*"]
                                                            :interact-pop-up-str "pet cat"}]
                                                  })
-                                    (npc/create-cat 600 400
+                                    (npc/create 500 100
                                                 :cat
                                                 {:width 100
                                                  :height 100
-                                                 :current-dialog-index 0
                                                  :dialog [{:text ["making coffee"]
                                                            :interact-pop-up-str "make coffee"}
                                                           {:text ["*drink coffee*"]
@@ -72,22 +74,47 @@
                                                            :interact-pop-up-str "drink coffee"}]
                                                  })
                                     ]
-                         :exits [(room/create-exit {:pos [64 344]
-                                                    :player-start-pos [-100 0]
-                                                    :goto :room2})
-                                 (room/create-exit {:pos [-2000 0]
-                                                    :goto :bathroom})]}
-                 :room2 {:entities [(entity/create-background 0 0 :player-image)
-                                    (entity/create-background 0 100 :player-image)
-                                    (entity/create-background 0 200 :player-image)]
-                         :exits [(room/create-exit {:pos [0 300]
-                                                    :player-start-pos [64 500]
-                                                    :goto :start})]}}
+                         :exits [(room/create-exit {:pos [0 344]
+                                                    :goto-pos [-50 300]
+                                                    :goto :office})
+                                 (room/create-exit {:pos [500 644]
+                                                    :goto-pos [0 0]
+                                                    :goto :bed-room})]}
+                 :office {:entities [(set-entity-dims (npc/create -290 300 :player-image
+                                                  {:dialog {:text ["let me start working on the game"]
+                                                            :end-callback-fn npc/goto-work-1
+                                                            :interact-pop-up-str "start work"}}))
+                                     ]
+                         :exits [(room/create-exit {:pos [100 300]
+                                                    :goto-pos [250 300]
+                                                    :goto :start})]}
+                 :bed-room {:entities [(entity/create-background 0 0 :player-image)
+                                       (set-entity-dims (npc/create 0 300 
+                                                                    :player-image
+                                                                    {:dialog {:text ["I don't want to go back to sleep"]
+                                                                              :interact-pop-up-str "sleep"}}))]
+                            :exits [(room/create-exit {:pos [0 -150]
+                                                        :goto-pos [player-start-x player-start-y]
+                                                        :goto :start})]}
+                 :work-pc-1 {:entities [(entity/create-background 0 0 :emacs-image)
+                                        (npc/create -350 400 :firefox-image
+                                                    {:dialog {:text ["I can check the web later"]
+                                                              :interact-pop-up-str "open browser"}})]
+                             :exits [(room/create-exit {:pos [0 0]
+                                                        :goto-pos [0 0]
+                                                        :end-callback-fn room/emacs-exit-end
+                                                        :goto :work-pc-2})]}
+
+                 :work-pc-2 {:entities []
+                             :type :special-work-1}}
+         :particles []
          :cutscenes {:start {:end-callback {:player-pos [0 0]
                                             :room :start}}}}))
 
 (def assets-map {:images {:player-image "npcBody.png"
                           :grey-house "greyHouse1.png"
+                          :emacs-image "greyHouse1.png"
+                          :firefox-image "cat.png"
                           :background "background.jpg"
                           :cat "cat.png"
                           :cat-eatting "npcBody.png"}

@@ -65,7 +65,8 @@
 
 (defn draw-debug-entity [entity]
   (let [pos (:pos entity)]
-      (c/draw-rect (v/x pos)
+    (c/fill "black")
+      (c/draw-stroke-rect (v/x pos)
                    (v/y pos)
                    (:width entity)
                    (:height entity))))

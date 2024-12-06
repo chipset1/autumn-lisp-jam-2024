@@ -6,8 +6,8 @@
             [game.input :as input]
    ))
 
-(defn create [w h]
-  {:pos [(/ w 2) (/ h 2)]
+(defn create [x y]
+  {:pos [x y]
    :image-scale 0.2
    :image-key :player-image
    :width 113

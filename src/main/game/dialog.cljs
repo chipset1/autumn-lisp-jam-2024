@@ -130,7 +130,9 @@
 (defn draw-dialog-box [state entity]
   (when (and (states/dialog-running? state)
              (= (:id entity) (:dialog/entity-id state)))
-    (let [box-width 500
+    (let [text-string (nth (:text (get-dialog entity))
+                           (:dialog/index state))
+          box-width (* (count text-string) 23)
           box-height 150
           x (- (v/x (:pos (:player state)))
                (/ box-width 2))

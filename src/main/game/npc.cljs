@@ -8,6 +8,7 @@
 (defn create [x y image-key args-map]
   (-> {:pos [x y]
        :image-key image-key
+       :current-dialog-index 0
        :image-scale 0.2}
       (entity/create)
       (merge args-map)
@@ -28,6 +29,11 @@
   
   )
 
+;; end-callback
+(defn goto-work-1
+  [state]
+  (assoc state
+         :current-room :work-pc-1))
 
 (defn create-cat [x y image-key args-map]
   (assoc (create x y image-key args-map)
