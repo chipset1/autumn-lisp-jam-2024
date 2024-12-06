@@ -1,17 +1,11 @@
 #+title: Readme
 
-Starting point for the autumn lisp game jam 2024. I'm making a game in
-clojurescript.
-https://github.com/chipset1/autumn-lisp-jam-2024/tree/main
 https://itch.io/jam/autumn-lisp-game-jam-2024
 
+I didn't end up completing the game in time for the jam. I'm reading into better
+ways to make a game in a functional way. I would not do things this way again.
+
 [[./screenshots/pre_jam_start.png]]
-
-The features implemented before the jam are: basic player movement, image
-loading and drawing, audio loading and playing, canvas resizing.
-
-The dev instructions will be for emacs and cider since that's what I'm using. 
-Will update the instruction to build the project later.
 
 For development:
 Run cider-jack-in-cljs and in the past I've had to run the commands below in the
@@ -36,5 +30,5 @@ canvas resize scaling
 https://stackoverflow.com/questions/33515707/scaling-a-javascript-canvas-game-properly
 https://jsfiddle.net/blindman67/fdjqoj04/
 
-example game cljs:
+example game squint cljs:
 https://github.com/trevorcode/zenith-game
